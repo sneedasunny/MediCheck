@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5f8ff">
+    <title>MediCheck | Medicine Information</title>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --background: #f5f8ff;
+            --surface: #ffffff;
+            --text: #172033;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --green: #15803d;
+            --orange: #b45309;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .navbar {
+            max-width: 1080px;
+            margin: auto;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 23px;
+            font-weight: 750;
+            color: var(--primary);
+        }
+
+        .logo-icon {
+            display: grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #dbeafe;
+            font-size: 25px;
+        }
+
+        .status {
+            color: var(--green);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        main {
+            max-width: 900px;
+            margin: auto;
+            padding: 48px 22px 64px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .eyebrow {
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        h1 {
+            font-size: clamp(30px, 5vw, 44px);
+            line-height: 1.2;
+            margin: 12px 0;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            max-width: 600px;
+            margin: 0 auto;
+            color: var(--muted);
+        }
+
+        .search-panel {
+            background: var(--surface);
+            padding: 24px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 8px 30px rgba(15, 23, 42, 0.04);
+        }
+
+        .scanner-panel { margin-top: 20px; }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 650;
+            margin-bottom: 9px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        input, textarea {
+            min-width: 0;
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font: inherit;
+            outline: none;
+            background: white;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px #dbeafe;
+        }
+
+        input[type="file"] { margin-bottom: 14px; }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 13px 21px;
+            background: var(--primary);
+            color: white;
+            font-size: 15px;
+            font-weight: 650;
+            cursor: pointer;
+        }
+
+        button:hover { background: var(--primary-dark); }
+
+        button:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+
+        .hint {
+            color: var(--muted);
+            font-size: 13px;
+            margin: 12px 0 0;
+        }
+
+        #message, #ocrMessage {
+            margin: 22px 0;
+            color: var(--muted);
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        #ocrMessage:empty { display: none; }
+
+        .result-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin: 32px 0 16px;
+        }
+
+        .result-heading h2 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .count {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .medicine-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 16px;
+            box-shadow: 0 5px 20px rgba(15, 23, 42, 0.03);
+        }
+
+        .medicine-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .medicine-card h3 {
+            font-size: 20px;
+            margin: 0 0 5px;
+        }
+
+        .medicine-subtitle {
+            color: var(--muted);
+            font-size: 14px;
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .score {
+            white-space: nowrap;
+            background: #dbeafe;
+            color: #1d4ed8;
+            border-radius: 8px;
+            padding: 5px 9px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .metadata {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+
+        .tag {
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 5px 9px;
+            font-size: 12px;
+            color: #334155;
+        }
+
+        .info-section {
+            border-top: 1px solid var(--border);
+            padding-top: 14px;
+            margin-top: 14px;
+        }
+
+        .info-section h4 {
+            font-size: 14px;
+            margin: 0 0 6px;
+        }
+
+        .info-section p {
+            margin: 0;
+            color: #475569;
+            font-size: 14px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .side-title { color: #9f1239; }
+        .warning-title { color: var(--orange); }
+        .interaction-title { color: #6d28d9; }
+
+        .verification {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 16px;
+            overflow-wrap: anywhere;
+        }
+
+        .notice {
+            margin-top: 30px;
+            padding: 18px;
+            border: 1px solid #fed7aa;
+            background: #fff7ed;
+            color: #7c2d12;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+
+        footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            padding: 24px;
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+
+        [hidden] { display: none !important; }
+
+        @media (max-width: 560px) {
+            main { padding: 32px 15px 44px; }
+            .navbar { padding: 14px 16px; }
+            .search-panel { padding: 18px; }
+            .search-row { flex-direction: column; }
+            .search-row button { width: 100%; }
+            .medicine-card { padding: 17px; }
+            .medicine-top { flex-direction: column; }
+            .score { white-space: normal; }
+        }
+    </style>
+</head>
+
+<body>
+<header>
+    <div class="navbar">
+        <div class="logo">
+            <span class="logo-icon" aria-hidden="true">✚</span>
+            <span>MediCheck</span>
+        </div>
+        <span class="status">● Search system</span>
+    </div>
+</header>
+
+<main>
+    <section class="hero">
+        <div class="eyebrow">ML-powered medicine search</div>
+        <h1>Medicine information, made easier.</h1>
+        <p>
+            Search the MediCheck dataset to find medicine details,
+            ingredients, side effects, warnings, and interactions.
+            You can also scan text from a medicine package.
+        </p>
+    </section>
+
+    <!-- Medicine text search -->
+    <section class="search-panel">
+        <form id="searchForm">
+            <label for="medicineQuery">Enter a medicine name or ingredient</label>
+            <div class="search-row">
+                <input
+                    id="medicineQuery"
+                    name="q"
+                    type="search"
+                    placeholder="e.g. Augmentin 625"
+                    autocomplete="off"
+                    required
+                >
+                <button id="searchButton" type="submit">
+                    Search medicines
+                </button>
+            </div>
+            <p class="hint">
+                Example searches: Augmentin 625, Azithral 500, or amoxicillin.
+            </p>
+        </form>
+    </section>
+
+    <!-- OCR image scanner -->
+    <section class="search-panel scanner-panel">
+        <h2 style="margin-top: 0;">Scan a medicine package</h2>
+        <p class="hint" style="margin: 0 0 18px;">
+            Upload a clear photo of a medicine box, strip, or label.
+            MediCheck will attempt to read the text in the image.
+        </p>
+
+        <form id="ocrForm">
+            <label for="medicineImage">Choose a medicine image</label>
+            <input
+                id="medicineImage"
+                name="image"
+                type="file"
+                accept="image/*"
+                required
+            >
+            <button id="scanButton" type="submit">
+                Scan medicine image
+            </button>
+        </form>
+
+        <div id="ocrMessage" role="status" aria-live="polite"></div>
+
+        <div id="ocrResult" hidden>
+            <label for="extractedText">Text detected in the image</label>
+            <textarea id="extractedText" rows="5"></textarea>
+            <p class="hint">
+                Raw OCR text is often noisy. Edit it to just the brand name, strength,
+                or ingredients (for example "Augmentin 625") before searching.
+            </p>
+            <button id="searchExtractedText" type="button" style="margin-top: 12px;">
+                Search extracted text
+            </button>
+        </div>
+    </section>
+
+    <div id="message" role="status" aria-live="polite">
+        Enter a medicine name above to begin.
+    </div>
+
+    <section id="resultsSection" hidden>
+        <div class="result-heading">
+            <h2>Search results</h2>
+            <span id="resultCount" class="count"></span>
+        </div>
+        <div id="results"></div>
+    </section>
+
+    <aside class="notice">
+        <strong>Important medical notice:</strong>
+        MediCheck is an educational information-retrieval project.
+        OCR can misread package text, and search similarity does not
+        establish that medicines are equivalent or safe to use together.
+        Dataset information may be incomplete or unverified. Consult a
+        qualified healthcare professional for medical advice. Do not
+        start, stop, or change medicines based on these search results.
+    </aside>
+</main>
+
+<footer>
+    MediCheck · Machine Learning Project · Information is provided for educational purposes.
+</footer>
+
+<script>
+    const searchForm = document.getElementById("searchForm");
+    const queryInput = document.getElementById("medicineQuery");
+    const searchButton = document.getElementById("searchButton");
+    const message = document.getElementById("message");
+    const resultsSection = document.getElementById("resultsSection");
+    const resultsContainer = document.getElementById("results");
+    const resultCount = document.getElementById("resultCount");
+
+    const ocrForm = document.getElementById("ocrForm");
+    const medicineImage = document.getElementById("medicineImage");
+    const scanButton = document.getElementById("scanButton");
+    const ocrMessage = document.getElementById("ocrMessage");
+    const ocrResult = document.getElementById("ocrResult");
+    const extractedText = document.getElementById("extractedText");
+    const searchExtractedText = document.getElementById("searchExtractedText");
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, character => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[character]);
+    }
+
+    function infoSection(title, value, className) {
+        const safeValue = escapeHTML(value);
+
+        if (!safeValue.trim()) {
+            return "";
+        }
+
+        return `
+            <section class="info-section">
+                <h4 class="${className}">${title}</h4>
+                <p>${safeValue}</p>
+            </section>
+        `;
+    }
+
+    function renderMedicine(medicine) {
+        const name = escapeHTML(medicine.name || "Unnamed medicine");
+        const brand = escapeHTML(medicine.brand_name);
+        const generic = escapeHTML(medicine.generic_name);
+        const ingredients = escapeHTML(medicine.active_ingredients);
+        const form = escapeHTML(medicine.dosage_form);
+        const strength = escapeHTML(medicine.strength);
+        const score = Number(medicine.similarity);
+
+        const confidenceLabels = {
+            likely: "Likely match",
+            possible: "Possible match",
+            weak: "Weak match"
+        };
+
+        const scoreText = medicine.confidence
+            ? (confidenceLabels[medicine.confidence] || "Possible match")
+            : (Number.isFinite(score)
+                ? `${(score * 100).toFixed(1)}% text match`
+                : "");
+
+        const reasons = Array.isArray(medicine.match_reasons)
+            ? medicine.match_reasons.filter(Boolean).join(", ")
+            : "";
+
+        const tags = [form, strength]
+            .filter(value => value && value.trim())
+            .map(value => `<span class="tag">${value}</span>`)
+            .join("");
+
+        return `
+            <article class="medicine-card">
+                <div class="medicine-top">
+                    <div>
+                        <h3>${name}</h3>
+                        <p class="medicine-subtitle">
+                            ${brand || generic || "Medicine record"}
+                        </p>
+                    </div>
+                    ${scoreText
+                        ? `<span class="score">${escapeHTML(scoreText)}</span>`
+                        : ""}
+                </div>
+
+                <div class="metadata">${tags}</div>
+
+                ${reasons
+                    ? `<p class="medicine-subtitle">
+                        <strong>Why it matched:</strong> ${escapeHTML(reasons)}
+                       </p>`
+                    : ""}
+
+                ${ingredients
+                    ? `<p class="medicine-subtitle">
+                        <strong>Active ingredients:</strong> ${ingredients}
+                       </p>`
+                    : ""}
+
+                ${infoSection("Side effects", medicine.side_effects, "side-title")}
+                ${infoSection("Warnings", medicine.warnings, "warning-title")}
+                ${infoSection("Interactions", medicine.interactions, "interaction-title")}
+
+                <p class="verification">
+                    Verification status: ${
+                        escapeHTML(medicine.verification_status || "Not specified")
+                    }
+                </p>
+            </article>
+        `;
+    }
+
+    async function searchMedicines(query) {
+        query = query.trim();
+
+        if (!query) {
+            message.textContent = "Please enter a medicine name or ingredient.";
+            return;
+        }
+
+        searchButton.disabled = true;
+        searchButton.textContent = "Searching...";
+        message.textContent = "Searching the medicine dataset...";
+        resultsSection.hidden = true;
+        resultsContainer.innerHTML = "";
+        resultCount.textContent = "";
+
+        try {
+            const response = await fetch(
+                `/api/search?q=${encodeURIComponent(query)}`
+            );
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "The search request failed.");
+            }
+
+            const results = Array.isArray(data.results) ? data.results : [];
+
+            if (results.length === 0) {
+                message.textContent =
+                    "No matching records were found. Try another medicine name or ingredient.";
+                return;
+            }
+
+            resultsContainer.innerHTML = results.map(renderMedicine).join("");
+            resultCount.textContent = `${results.length} result(s)`;
+            resultsSection.hidden = false;
+
+            message.textContent = data.confidence_message
+                ? `${data.confidence_message} Results for "${query}"`
+                : `Results for "${query}"`;
+            resultsSection.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        } catch (error) {
+            message.textContent =
+                "Could not complete the search. Make sure the Flask server is running.";
+            console.error("MediCheck search error:", error);
+        } finally {
+            searchButton.disabled = false;
+            searchButton.textContent = "Search medicines";
+        }
+    }
+
+    searchForm.addEventListener("submit", async event => {
+        event.preventDefault();
+        await searchMedicines(queryInput.value);
+    });
+
+    // Upload an image and send it to Flask's OCR endpoint.
+    ocrForm.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        const file = medicineImage.files[0];
+
+        if (!file) {
+            ocrMessage.textContent = "Please choose an image first.";
+            return;
+        }
+
+        if (!file.type.startsWith("image/")) {
+            ocrMessage.textContent = "Please select a valid image file.";
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        scanButton.disabled = true;
+        scanButton.textContent = "Scanning image...";
+        ocrMessage.textContent = "Reading text from your image. Please wait.";
+        ocrResult.hidden = true;
+
+        try {
+            const response = await fetch("/api/ocr", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Could not scan the image.");
+            }
+
+            extractedText.value = data.extracted_text || "";
+
+            if (!extractedText.value.trim()) {
+                throw new Error("No text was detected. Try a clearer image.");
+            }
+
+            ocrResult.hidden = false;
+
+            const candidates = Array.isArray(data.candidates)
+                ? data.candidates : [];
+
+            if (candidates.length > 0) {
+                resultsContainer.innerHTML =
+                    candidates.map(renderMedicine).join("");
+                resultCount.textContent = `${candidates.length} possible match(es)`;
+                resultsSection.hidden = false;
+                message.textContent = "";
+                ocrMessage.textContent = data.message || "";
+                resultsSection.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+            } else {
+                resultsSection.hidden = true;
+                resultsContainer.innerHTML = "";
+                ocrMessage.textContent = data.message ||
+                    "Could not identify this medicine from the scan.";
+            }
+
+        } catch (error) {
+            ocrMessage.textContent = error.message ||
+                "Could not scan the image. Please try again.";
+            console.error("MediCheck OCR error:", error);
+        } finally {
+            scanButton.disabled = false;
+            scanButton.textContent = "Scan medicine image";
+        }
+    });
+
+    // Search using the text extracted from the image.
+    searchExtractedText.addEventListener("click", async () => {
+        const text = extractedText.value.trim();
+
+        if (!text) {
+            ocrMessage.textContent = "There is no extracted text to search.";
+            return;
+        }
+
+        queryInput.value = text;
+        await searchMedicines(text);
+    });
+</script>
+</body>
+</html>
